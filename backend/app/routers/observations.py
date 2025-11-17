@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import text
-from ..db import get_db
+from ..db import get_db, table
 
 router = APIRouter(prefix="/observations", tags=["observations"])
 
@@ -13,7 +13,10 @@ def list_observations(
     limit: int = 1000,
     db=Depends(get_db),
 ):
-    parts = ["SELECT time, station_id, parameter, unit, value, quality, source FROM air.observations WHERE 1=1"]
+    observations_table = table("observations")
+    parts = [
+        f"SELECT time, station_id, parameter, unit, value, quality, source FROM {observations_table} WHERE 1=1"
+    ]
     params = {}
     if station_id:
         parts.append("AND station_id = :station_id")
