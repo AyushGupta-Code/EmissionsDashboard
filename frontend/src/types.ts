@@ -17,3 +17,8 @@ export type Observation = {
   quality?: string;
   source?: string;
 };
+
+export type StatsSummary = {
+  station_count: number;
+  observation_24h: number;
+};

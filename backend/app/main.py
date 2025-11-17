@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .core.config import settings
-from .routers import health, stations, observations, analytics
+from .routers import analytics, health, observations, stations, stats
 
 app = FastAPI(title="Emissions API")
 
@@ -21,3 +21,4 @@ app.include_router(health.router)
 app.include_router(stations.router)
 app.include_router(observations.router)
 app.include_router(analytics.router)
+app.include_router(stats.router)
