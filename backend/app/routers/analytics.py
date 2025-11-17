@@ -25,11 +25,8 @@ def hourly(
     end: datetime | None = None,
     db: DbSession = Depends(get_db),
 ) -> list[HourlyResponse]:
-    """
-    Return hourly aggregates for a station/parameter between optional start/end.
-    """
+    """Return hourly aggregates for a station/parameter between optional start/end."""
 
-    # Build WHERE conditions dynamically so we don't send NULL parameters
     conditions = [
         "station_id = :station_id",
         "parameter  = :parameter",
@@ -40,29 +37,32 @@ def hourly(
     }
 
     if start is not None:
-        conditions.append("bucket >= :start")
+        conditions.append("time >= :start")
         params["start"] = start
 
     if end is not None:
-        conditions.append("bucket <= :end")
+        conditions.append("time <= :end")
         params["end"] = end
 
     where_clause = " AND ".join(conditions)
 
-    sql = text(f"""
+    sql = text(
+        f"""
         SELECT
-            bucket AS time,
+            date_trunc('hour', time) AS time,
             station_id,
             parameter,
-            unit,
-            avg_value,
-            min_value,
-            max_value,
-            n
-        FROM air.obs_hourly
+            MIN(unit)        AS unit,
+            AVG(value)       AS avg_value,
+            MIN(value)       AS min_value,
+            MAX(value)       AS max_value,
+            COUNT(*)         AS n
+        FROM air.observations
         WHERE {where_clause}
+        GROUP BY 1, 2, 3
         ORDER BY time
-    """)
+        """
+    )
 
     rows = db.execute(sql, params).mappings().all()
     return [HourlyResponse(**row) for row in rows]
