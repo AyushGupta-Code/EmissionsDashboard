@@ -1,0 +1,10 @@
+html, body, #root { height: 100%; margin: 0; font-family: system-ui, sans-serif; }
+.leaflet-container { width: 100%; height: 100%; }
+.app { display: grid; grid-template-rows: 64px 1fr; height: 100%; }
+.header { display:flex; align-items:center; justify-content:space-between; padding:0 16px; border-bottom:1px solid #eee; }
+.content { display:grid; grid-template-columns: 2fr 3fr; gap:12px; padding:12px; height: calc(100% - 0px); }
+.card { border:1px solid #eee; border-radius:12px; padding:12px; box-shadow:0 1px 4px rgba(0,0,0,.05); }
+.map { height: 100%; border-radius:12px; overflow:hidden; }
+.chart { height: 360px; }
+.controls { display:flex; gap:8px; align-items:center; }
+label { font-size: 14px; color: #444; }
