@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session as DbSession
 
-from ..db import get_db
+from ..db import get_db, table
 from ..schemas import HourlyResponse
 
 router = APIRouter()
@@ -46,10 +46,19 @@ def hourly(
 
     where_clause = " AND ".join(conditions)
 
+    bind = db.get_bind()
+    dialect_name = bind.dialect.name if bind is not None else "default"
+    if dialect_name == "sqlite":
+        hour_bucket = "datetime(strftime('%Y-%m-%d %H:00:00', time))"
+    else:
+        hour_bucket = "date_trunc('hour', time)"
+
+    observations_table = table("observations")
+
     sql = text(
         f"""
         SELECT
-            date_trunc('hour', time) AS time,
+            {hour_bucket} AS time,
             station_id,
             parameter,
             MIN(unit)        AS unit,
@@ -57,7 +66,7 @@ def hourly(
             MIN(value)       AS min_value,
             MAX(value)       AS max_value,
             COUNT(*)         AS n
-        FROM air.observations
+        FROM {observations_table}
         WHERE {where_clause}
         GROUP BY 1, 2, 3
         ORDER BY time
