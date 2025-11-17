@@ -7,14 +7,12 @@
 
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session as DbSession
 
-from app.db import get_db
-from app.schemas.analytics import HourlyResponse
-
 from ..db import get_db
+from ..schemas import HourlyResponse
 
 router = APIRouter()
 

@@ -18,3 +18,16 @@ class ObservationOut(BaseModel):
     value: float
     quality: str | None
     source: str | None
+
+
+class HourlyResponse(BaseModel):
+    """Response schema for hourly aggregates returned by /analytics/hourly."""
+
+    time: datetime
+    station_id: str
+    parameter: str
+    unit: str
+    avg_value: float
+    min_value: float
+    max_value: float
+    n: int
