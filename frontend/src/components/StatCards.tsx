@@ -2,10 +2,18 @@ import React from 'react';
 
 type Stat = { label: string; value: string | number; };
 
-export default function StatCards(){
+type StatCardsProps = {
+  stationCount?: number;
+  observationCount?: number;
+};
+
+const formatValue = (value?: number) =>
+  typeof value === 'number' && !Number.isNaN(value) ? value.toLocaleString() : '—';
+
+export default function StatCards({ stationCount, observationCount }: StatCardsProps){
   const stats: Stat[] = [
-    { label: 'Stations', value: '—' },
-    { label: 'Observations (24h)', value: '—' },
+    { label: 'Stations', value: formatValue(stationCount) },
+    { label: 'Observations (24h)', value: formatValue(observationCount) },
     { label: 'Parameters', value: 'pm25, pm10, o3, no2' },
   ];
   return (

@@ -72,16 +72,10 @@ def _bootstrap_sqlite_engine():
         conn.execute(text("DELETE FROM stations"))
         conn.execute(text("DELETE FROM observations"))
 
-        conn.execute(
-            text(
-                """
-                INSERT INTO stations (station_id, name, provider, country, city, latitude, longitude, elevation_m)
-                VALUES (:station_id, :name, :provider, :country, :city, :latitude, :longitude, :elevation_m)
-                """
-            ),
+        demo_stations = [
             {
                 "station_id": "DEMO_1",
-                "name": "Demo Station 1",
+                "name": "Downtown Monitor",
                 "provider": "demo",
                 "country": "US",
                 "city": "Raleigh",
@@ -89,24 +83,75 @@ def _bootstrap_sqlite_engine():
                 "longitude": -78.6382,
                 "elevation_m": 96.0,
             },
+            {
+                "station_id": "DEMO_2",
+                "name": "Research Triangle",
+                "provider": "demo",
+                "country": "US",
+                "city": "Durham",
+                "latitude": 35.9940,
+                "longitude": -78.8986,
+                "elevation_m": 123.0,
+            },
+            {
+                "station_id": "DEMO_3",
+                "name": "Coastal Plains",
+                "provider": "demo",
+                "country": "US",
+                "city": "Wilmington",
+                "latitude": 34.2257,
+                "longitude": -77.9447,
+                "elevation_m": 9.0,
+            },
+            {
+                "station_id": "DEMO_4",
+                "name": "Blue Ridge",
+                "provider": "demo",
+                "country": "US",
+                "city": "Asheville",
+                "latitude": 35.5951,
+                "longitude": -82.5515,
+                "elevation_m": 650.0,
+            },
+            {
+                "station_id": "DEMO_5",
+                "name": "Piedmont Foothills",
+                "provider": "demo",
+                "country": "US",
+                "city": "Greensboro",
+                "latitude": 36.0726,
+                "longitude": -79.7920,
+                "elevation_m": 270.0,
+            },
+        ]
+
+        conn.execute(
+            text(
+                """
+                INSERT INTO stations (station_id, name, provider, country, city, latitude, longitude, elevation_m)
+                VALUES (:station_id, :name, :provider, :country, :city, :latitude, :longitude, :elevation_m)
+                """
+            ),
+            demo_stations,
         )
 
         now = datetime.now(tz=timezone.utc)
         samples = []
-        for idx, value in enumerate((14.2, 18.9, 12.1)):
-            samples.append(
-                {
-                    "time": (now - timedelta(hours=2 - idx)).strftime(
-                        "%Y-%m-%d %H:%M:%S"
-                    ),
-                    "station_id": "DEMO_1",
-                    "parameter": "pm25",
-                    "unit": "µg/m³",
-                    "value": value,
-                    "quality": "ok",
-                    "source": "demo",
-                }
-            )
+        parameters = ("pm25", "pm10", "o3", "no2")
+        for station_index, station in enumerate(demo_stations):
+            for hour_offset in range(12):
+                parameter = parameters[(station_index + hour_offset) % len(parameters)]
+                samples.append(
+                    {
+                        "time": (now - timedelta(hours=hour_offset)).isoformat(),
+                        "station_id": station["station_id"],
+                        "parameter": parameter,
+                        "unit": "µg/m³" if "pm" in parameter else "ppb",
+                        "value": round(5 + station_index * 2 + hour_offset * 0.5, 2),
+                        "quality": "ok",
+                        "source": "demo",
+                    }
+                )
 
         conn.execute(
             text(
